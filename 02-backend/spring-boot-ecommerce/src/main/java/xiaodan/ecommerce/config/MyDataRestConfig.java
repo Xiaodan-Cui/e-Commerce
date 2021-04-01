@@ -6,8 +6,10 @@ import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import xiaodan.ecommerce.entity.Country;
 import xiaodan.ecommerce.entity.Product;
 import xiaodan.ecommerce.entity.ProductCategory;
+import xiaodan.ecommerce.entity.State;
 
 import javax.persistence.EntityManager;
 import javax.persistence.metamodel.EntityType;
@@ -27,16 +29,19 @@ public class MyDataRestConfig implements RepositoryRestConfigurer {
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
         HttpMethod[] theUnsupportedActions={HttpMethod.DELETE,HttpMethod.POST,HttpMethod.PUT};
         //disabled HTTP methods
-        config.getExposureConfiguration()
-                .forDomainType(Product.class)
-                .withItemExposure(((metdata, httpMethods) -> httpMethods.disable(theUnsupportedActions)))
-                .withCollectionExposure(((metdata, httpMethods) -> httpMethods.disable(theUnsupportedActions)));
+        disabledHTTPMethods(Product.class,config, theUnsupportedActions);
+        disabledHTTPMethods(ProductCategory.class,config, theUnsupportedActions);
+        disabledHTTPMethods(Country.class,config, theUnsupportedActions);
+        disabledHTTPMethods(State.class,config, theUnsupportedActions);
 
+        exposeId(config);
+    }
+
+    private void disabledHTTPMethods(Class theClass,RepositoryRestConfiguration config, HttpMethod[] theUnsupportedActions) {
         config.getExposureConfiguration()
-                .forDomainType(ProductCategory.class)
+                .forDomainType(theClass)
                 .withItemExposure(((metdata, httpMethods) -> httpMethods.disable(theUnsupportedActions)))
                 .withCollectionExposure(((metdata, httpMethods) -> httpMethods.disable(theUnsupportedActions)));
-        exposeId(config);
     }
 
     private void exposeId(RepositoryRestConfiguration config){
